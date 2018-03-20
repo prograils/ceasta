@@ -96,28 +96,15 @@ class Selection
   saveCurrentSelection: ->
     @currentSelection = getSelection()
     @startOffset = @currentSelection.startOffset
-    # @nodesIndexes = saveNodesIndexes(@$container, @currentSelection.startContainer)
-    # if parentNode != this
-    #     parentIndex = nodeArray.indexOf(textArea.test.startContainer.parentNode)
-    #     nodeIndex = Array.from(parentNode.childNodes).indexOf(textArea.test.startContainer)
-    #   else
-    #     nodeIndex = nodeArray.indexOf(textArea.test.startContainer)
     { @parentIndex, @nodeIndex } =
       getCurrentNodeIndexes(@nodeArray, @currentSelection.startContainer, @$container)
     @currentOffset = sumCurrentOffset(@nodeArray, (@parentIndex || @nodeIndex), @startOffset)
 
   restoreSelection: () ->
     range = document.createRange()
-    if @nodesLength != @$container.childNodes.length
-      { node, @currentOffset } = findNodeForPosition(@$container, @currentOffset)
-      element = if node.childNodes.length > 0 then node.childNodes[0] else node
-      range.setStart(element, @currentOffset)
-    else
-      if @parentIndex
-        start = @$container.childNodes[@parentIndex].childNodes[@nodeIndex]
-      else
-        start = @$container.childNodes[@nodeIndex]
-      range.setStart(start, @startOffset)
+    { node, @currentOffset } = findNodeForPosition(@$container, @currentOffset)
+    element = if node.childNodes.length > 0 then node.childNodes[0] else node
+    range.setStart(element, @currentOffset)
     range.collapse(true)
     sel = window.getSelection()
     sel.removeAllRanges()
@@ -144,7 +131,7 @@ class Selection
   
   findNodeForPosition = ($container, currentOffset) ->
     node =  _.find Array.from($container.childNodes), (ele) ->
-              if (currentOffset - ele.textContent.length) <= 0
+              if (currentOffset - ele.textContent.length) <=  0
                 return true
               else
                 currentOffset = currentOffset - ele.textContent.length

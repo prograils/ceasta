@@ -143,20 +143,19 @@
       }
 
       restoreSelection() {
-        var element, node, range, sel, start;
+        var element, node, range, sel;
         range = document.createRange();
-        if (this.nodesLength !== this.$container.childNodes.length) {
-          ({node, currentOffset: this.currentOffset} = findNodeForPosition(this.$container, this.currentOffset));
-          element = node.childNodes.length > 0 ? node.childNodes[0] : node;
-          range.setStart(element, this.currentOffset);
-        } else {
-          if (this.parentIndex) {
-            start = this.$container.childNodes[this.parentIndex].childNodes[this.nodeIndex];
-          } else {
-            start = this.$container.childNodes[this.nodeIndex];
-          }
-          range.setStart(start, this.startOffset);
-        }
+        // if @nodesLength != @$container.childNodes.length
+        ({node, currentOffset: this.currentOffset} = findNodeForPosition(this.$container, this.currentOffset));
+        element = node.childNodes.length > 0 ? node.childNodes[0] : node;
+        range.setStart(element, this.currentOffset);
+        // else
+        //   if @parentIndex
+        //     start = @$container.childNodes[@parentIndex].childNodes[@nodeIndex]
+        //   else
+        //     start = @$container.childNodes[@nodeIndex]
+        //   debugger
+        //   range.setStart(start, @startOffset)
         range.collapse(true);
         sel = window.getSelection();
         sel.removeAllRanges();
