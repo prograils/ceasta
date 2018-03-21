@@ -9,4 +9,5 @@
   padding: 2px;
   resize: both;
   width: 400px;
+  white-space: pre-wrap;
 }

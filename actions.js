@@ -3,7 +3,7 @@
   var Selection, TextArea;
 
   TextArea = (function() {
-    var focusEvents, inputEvent, saveSelection;
+    var focusEvents, inputEvent;
 
     class TextArea {
       constructor($container, placeholder = 'Test', highlight = 'Lorem') {
@@ -49,58 +49,18 @@
     };
 
     inputEvent = function(textArea, $container, highlight) {
-      return $container.on('input', function(e) {
-        var regexp, selection;
+      return $container.on('keyup', function(e) {
+        var regexp;
         regexp = `\\b(${highlight}\\w*)`;
-        // textArea.value = $(this).text()
-        // textArea.test = saveSelection()
-        // startOffset = textArea.test.startOffset
-        // startNodesLength = this.childNodes.length
-        // parentNode = textArea.test.startContainer.parentNode
-        // nodeArray = Array.from(this.childNodes)
-        // if parentNode != this
-        //   parentIndex = nodeArray.indexOf(textArea.test.startContainer.parentNode)
-        //   nodeIndex = Array.from(parentNode.childNodes).indexOf(textArea.test.startContainer)
-        // else
-        //   nodeIndex = nodeArray.indexOf(textArea.test.startContainer)
-        // offsetSum = _.reduce nodeArray.slice(0, (parentIndex || nodeIndex)), ((sum, node) ->
-        //   sum + node.textContent.length
-        // ), startOffset
-        selection = new Selection(this);
-        selection.saveCurrentSelection();
-        $(this).html($(this).text().replace(new RegExp(regexp, "g"), "<b>$1</b>"));
-        return selection.restoreSelection();
+        if (e.which !== 13 && textArea.val() !== $(this).text()) {
+          textArea.selection = new Selection(this);
+          textArea.selection.saveCurrentSelection();
+          $(this).html($(this).html().replace(/<b>|<\/b>/g, ''));
+          $(this).html($(this).html().replace(new RegExp(regexp, "g"), "<b>$1</b>"));
+          textArea.selection.restoreSelection();
+          return textArea.value = $(this).text();
+        }
       });
-    };
-
-    // range = document.createRange()
-    // if startNodesLength != this.childNodes.length
-    //   ele = _.find Array.from(this.childNodes), (ele) ->
-    //     if (offsetSum - ele.textContent.length) <= 0
-    //       return true
-    //     else
-    //       offsetSum -= ele.textContent.length
-    //       return false
-    //   if ele.childNodes.length > 0
-    //     range.setStart(ele.childNodes[0], offsetSum)
-    //   else
-    //     range.setStart(ele, offsetSum)
-    // else
-    //   if parentIndex
-    //     start = this.childNodes[parentIndex].childNodes[nodeIndex]
-    //   else
-    //     start = this.childNodes[nodeIndex]
-    //   range.setStart(start, startOffset)
-    // range.collapse(true)
-    // sel = window.getSelection()
-    // sel.removeAllRanges()
-    // sel.addRange(range)
-    saveSelection = function() {
-      if (window.getSelection) {
-        return window.getSelection().getRangeAt(0);
-      } else if (document.selection) {
-        return document.selection.createRange();
-      }
     };
 
     focusEvents = function(textArea, $container, placeholder) {
@@ -120,42 +80,24 @@
   }).call(this);
 
   Selection = (function() {
-    var fetchNode, findNodeForPosition, getCurrentNodeIndexes, getSelection, saveNodesIndexes, sumCurrentOffset;
+    var findNodeForPosition, getSelection, sumCurrentOffset;
 
     class Selection {
       constructor($container) {
         this.$container = $container;
-        this.nodeArray = Array.from(this.$container.childNodes);
-        this.nodesLength = this.nodeArray.length;
       }
 
       saveCurrentSelection() {
         this.currentSelection = getSelection();
         this.startOffset = this.currentSelection.startOffset;
-        // @nodesIndexes = saveNodesIndexes(@$container, @currentSelection.startContainer)
-        // if parentNode != this
-        //     parentIndex = nodeArray.indexOf(textArea.test.startContainer.parentNode)
-        //     nodeIndex = Array.from(parentNode.childNodes).indexOf(textArea.test.startContainer)
-        //   else
-        //     nodeIndex = nodeArray.indexOf(textArea.test.startContainer)
-        ({parentIndex: this.parentIndex, nodeIndex: this.nodeIndex} = getCurrentNodeIndexes(this.nodeArray, this.currentSelection.startContainer, this.$container));
-        return this.currentOffset = sumCurrentOffset(this.nodeArray, this.parentIndex || this.nodeIndex, this.startOffset);
+        return this.currentOffset = sumCurrentOffset(this.$container, this.currentSelection.startContainer, this.startOffset);
       }
 
       restoreSelection() {
-        var element, node, range, sel;
+        var node, range, sel;
         range = document.createRange();
-        // if @nodesLength != @$container.childNodes.length
         ({node, currentOffset: this.currentOffset} = findNodeForPosition(this.$container, this.currentOffset));
-        element = node.childNodes.length > 0 ? node.childNodes[0] : node;
-        range.setStart(element, this.currentOffset);
-        // else
-        //   if @parentIndex
-        //     start = @$container.childNodes[@parentIndex].childNodes[@nodeIndex]
-        //   else
-        //     start = @$container.childNodes[@nodeIndex]
-        //   debugger
-        //   range.setStart(start, @startOffset)
+        range.setStart(node, this.currentOffset);
         range.collapse(true);
         sel = window.getSelection();
         sel.removeAllRanges();
@@ -172,21 +114,20 @@
       }
     };
 
-    getCurrentNodeIndexes = function(nodeArray, startContainer, $container) {
-      var nodeIndex, parentIndex;
-      if (startContainer.parentNode !== $container) {
-        parentIndex = nodeArray.indexOf(startContainer.parentNode);
-        nodeIndex = Array.from(startContainer.parentNode.childNodes).indexOf(startContainer);
-      } else {
-        nodeIndex = nodeArray.indexOf(startContainer);
+    sumCurrentOffset = function(root, node, startOffset) {
+      var ele, i, len, ref, result;
+      ref = Array.from(root.childNodes);
+      for (i = 0, len = ref.length; i < len; i++) {
+        ele = ref[i];
+        if ((ele !== node) && (ele.contains(node))) {
+          result = sumCurrentOffset(ele, node, 0);
+          startOffset = startOffset + result;
+          break;
+        } else if (node !== ele) {
+          startOffset = startOffset + ele.textContent.length;
+        }
       }
-      return {parentIndex, nodeIndex};
-    };
-
-    sumCurrentOffset = function(nodeArray, index, startOffset) {
-      return _.reduce(nodeArray.slice(0, index), (function(sum, node) {
-        return sum + node.textContent.length;
-      }), startOffset);
+      return startOffset;
     };
 
     findNodeForPosition = function($container, currentOffset) {
@@ -199,28 +140,11 @@
           return false;
         }
       });
-      return {node, currentOffset};
-    };
-
-    saveNodesIndexes = function($container, startContainer) {
-      var currentLeafe, nodesIndexes;
-      currentLeafe = startContainer;
-      nodesIndexes = [];
-      while (currentLeafe !== $container) {
-        nodesIndexes.push(Array.from(currentLeafe.parentNode.childNodes).indexOf(currentLeafe));
-        currentLeafe = currentLeafe.parentNode;
+      if (node.childNodes.length === 0) {
+        return {node, currentOffset};
+      } else {
+        return findNodeForPosition(node, currentOffset);
       }
-      return nodesIndexes;
-    };
-
-    fetchNode = function($container, nodeIndexes) {
-      var i, len, nodeIndex, root;
-      root = $container;
-      for (i = 0, len = nodeIndexes.length; i < len; i++) {
-        nodeIndex = nodeIndexes[i];
-        root = root.childNodes[nodeIndex];
-      }
-      return root;
     };
 
     return Selection;
