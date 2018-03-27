@@ -1,6 +1,3 @@
-// var webpack = require("webpack");
-// var webpackConfig = require('./webpack.config');
-// webpackConfig.devtool = 'inline-source-map';
 
 module.exports = (config) => {
   config.set({
@@ -25,7 +22,6 @@ module.exports = (config) => {
       'tests/*.html': ['html2js'],
       'test.js': ['webpack']
     },
-    singleRun: true,
     webpack: {
       mode: 'development',
       module: {
@@ -45,12 +41,13 @@ module.exports = (config) => {
       noInfo: true
     },
     plugins: [
+      'karma-chrome-launcher',
       'karma-webpack',
       'karma-html2js-preprocessor',
       'karma-jasmine',
-      'karma-phantomjs-launcher'
+      'karma-jasmine-jquery'
     ],
-    frameworks: ['jasmine'],
-    browsers: ['PhantomJS']
+    frameworks: ['jasmine-jquery', 'jasmine'],
+    browsers: ['Chrome']
   })
 }

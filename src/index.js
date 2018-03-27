@@ -9,7 +9,7 @@ export class TextArea {
     this.placeholder = placeholder;
     this.highlight = highlight;
     this.value = this.$container.val();
-    this.test = null;
+    this.placeholderDisplay = false;
     this.init();
   }
 
@@ -25,10 +25,10 @@ export class TextArea {
     });
   }
 
-  onInputText(e, textArea, $container, highlight) {
-    const regexp = `\\b(${highlight}\\w*)`;
-    if ((e.which !== 13) && (textArea.val() !== $container.text())) {
-      textArea.selection = new Selection($container.get(0));
+  onInputText(e, textArea) {
+    const regexp = `\\b(${this.highlight}\\w*)`;
+    if ((e.which !== 13) && (textArea.val() !== this.$container.text())) {
+      textArea.selection = new Selection(this.$container.get(0));
       textArea.selection.saveCurrentSelection();
       textArea.adjustText(textArea, $container, regexp);
       return textArea.selection.restoreSelection();
@@ -42,9 +42,9 @@ export class TextArea {
   }
 
   focusEvents(textArea, $container, placeholder) {
-    $container.on('focusin', e => textArea.cleanPlaceholder());
+    textArea.$container.on('focusin', e => textArea.cleanPlaceholder());
 
-    return $container.on('focusout', function (e) {
+    textArea.$container.on('focusout', function (e) {
       if ($(this).text()) { return; }
       return textArea.setPlaceholder();
     });
@@ -62,13 +62,13 @@ export class TextArea {
   setPlaceholder() {
     if (this.placeholderDisplay) { return; }
     this.$container.text(this.placeholder);
-    return this.placeholderDisplay = true;
+    this.placeholderDisplay = true;
   }
 
   cleanPlaceholder() {
     if (!this.placeholderDisplay) { return; }
     this.$container.text('');
-    return this.placeholderDisplay = false;
+    this.placeholderDisplay = false;
   }
 }
 
@@ -90,7 +90,7 @@ export class Selection {
     for (let ele of Array.from(Array.from(root.childNodes))) {
       if (node === ele) { break; }
       if ((ele !== node) && (ele.contains(node))) {
-        const result = sumCurrentOffset(ele, node, 0);
+        const result = this.sumCurrentOffset(ele, node, 0);
         startOffset += result;
         break;
       } else if (node !== ele) {
@@ -112,7 +112,7 @@ export class Selection {
     if (node.childNodes.length === 0) {
       return { node, currentOffset };
     } else {
-      return findNodeForPosition(node, currentOffset);
+      return this.findNodeForPosition(node, currentOffset);
     }
   }
   
@@ -135,10 +135,15 @@ export class Selection {
   }
 }
 
-$(function () {
-  let textArea;
-  return textArea = new TextArea($('#textarea'), 'Lorem ipsum dolor sit amet, consectetur adipiscing elit');
-});
+// $(function () {
+
+//   window.jQuery = $;
+//   window.$ = $;
+
+//   var text;
+//   text = new TextArea($('#textarea'), 'Lorem ipsum dolor sit amet, consectetur adipiscing elit');
+//   text.$container.focusin();
+// });
 
 
 // import $ from "jquery"
