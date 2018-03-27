@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
   mode: "development",
-  entry: './src/index.coffee',
+  entry: './src/index.js',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist')
@@ -17,12 +17,19 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.coffee$/,
-        loader: "coffee-loader"
+        test: /(\.js)$/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            babelrc: true
+          }
+        },
+        include: [
+          path.join(__dirname, 'src'),
+          path.join(__dirname, 'tests')
+        ],
+        exclude: /(node_modules|bower_components)/
       }
     ]
-  },
-  resolve: {
-    extensions: [".web.coffee", ".web.js", ".coffee", ".js"]
   }
 };
