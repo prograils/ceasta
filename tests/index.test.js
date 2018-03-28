@@ -4,17 +4,15 @@ import $ from 'jquery';
 var textArea;
 
 describe('TextArea', () => {
-  beforeAll(() => {
+  beforeEach(() => {
     document.body.innerHTML = window.__html__['tests/index'];
     window.jQuery = $;
     window.$ = $;
-    // console.log(text);
     textArea = new TextArea($('#textarea'), 'Fake placeholder');
   });
 
   describe('DOM', () => {
     it('should be in DOM', () => {
-      // textArea.$container.focusin();
       expect(textArea.$container[0]).toBeInDOM();
     });
     it('should be contenteditable', () => {
@@ -54,13 +52,31 @@ describe('TextArea', () => {
   });
 
   describe('OnInputText', () => {
-    it('should clean placeholder', () => {
-      textArea.onInputText({ which: 2 }, );
-      expect(textArea.$container.text()).toEqual('');
+    beforeEach(() => {
+      document.body.innerHTML = window.__html__['tests/index'];
+      window.jQuery = $;
+      window.$ = $;
+      textArea = new TextArea($('#textarea'), 'Fake placeholder');
     });
-    it('should set placeholder', () => {
-      textArea.setPlaceholder();
-      expect(textArea.$container.text()).toEqual('Fake placeholder');
+
+    it('should insert letter', () => {
+      var e = jQuery.Event("keyup");
+      e.which = 109;
+      textArea.val('Lore');
+      textArea.$container.text('Lorem');
+      var range = { startOffset: 0, startContainer: textArea.$container[0] };
+      var rangeObject = {
+        getRangeAt: function () { return range; },
+        removeAllRanges: function() { return {} },
+        addRange: function (newRange) { range = newRange; }
+      };
+      var removeRangeObject = {
+        getRangeAt: function () {  }
+      };
+      spyOn(window, 'getSelection').and.returnValue(rangeObject);
+      textArea.$container.trigger(e);
+      expect(textArea.$container.text()).toEqual('Lorem');
+      expect(textArea.$container.html()).toEqual('<b>Lorem</b>');
     });
   });
 });
