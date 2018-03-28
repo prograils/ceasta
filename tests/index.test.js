@@ -51,12 +51,15 @@ describe('TextArea', () => {
     });
   });
 
+  var rangeObject;
   describe('OnInputText', () => {
     beforeEach(() => {
-      document.body.innerHTML = window.__html__['tests/index'];
-      window.jQuery = $;
-      window.$ = $;
-      textArea = new TextArea($('#textarea'), 'Fake placeholder');
+      range = { startOffset: 0, startContainer: textArea.$container[0] };
+      rangeObject = {
+        getRangeAt: function () { return range; },
+        removeAllRanges: function() { return {} },
+        addRange: function (newRange) { range = newRange; }
+      };
     });
 
     it('should insert letter', () => {
@@ -64,14 +67,7 @@ describe('TextArea', () => {
       e.which = 109;
       textArea.val('Lore');
       textArea.$container.text('Lorem');
-      var range = { startOffset: 0, startContainer: textArea.$container[0] };
-      var rangeObject = {
-        getRangeAt: function () { return range; },
-        removeAllRanges: function() { return {} },
-        addRange: function (newRange) { range = newRange; }
-      };
-      var removeRangeObject = {
-        getRangeAt: function () {  }
+      tRangeAt: function () {  }
       };
       spyOn(window, 'getSelection').and.returnValue(rangeObject);
       textArea.$container.trigger(e);
