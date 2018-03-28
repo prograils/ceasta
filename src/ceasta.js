@@ -1,7 +1,4 @@
-import $ from "jquery";
-import _ from "underscore";
-
-export class TextArea {
+export class Ceasta {
   constructor($container, placeholder, highlight) {
     if (placeholder == null) { placeholder = 'Test'; }
     if (highlight == null) { highlight = 'Lorem'; }
@@ -71,7 +68,7 @@ export class TextArea {
   }
 }
 
-export class Selection {
+class Selection {
   constructor($container) {
     this.$container = $container;
   }
@@ -101,18 +98,22 @@ export class Selection {
   }
 
   findNodeForPosition($container, currentOffset) {
-    const node = _.find(Array.from($container.childNodes), function (ele) {
-      if ((currentOffset - ele.textContent.length) <= 0) {
-        return true;
-      } else {
-        currentOffset -= ele.textContent.length;
-        return false;
-      }
-    });
+    let node;
+    ({ node, currentOffset } = this.findNode($container.childNodes, currentOffset));
     if (node.childNodes.length === 0) {
       return { node, currentOffset };
     } else {
       return this.findNodeForPosition(node, currentOffset);
+    }
+  }
+
+  findNode(childNodes, currentOffset) {
+    for(let node of Array.from(childNodes)) {
+      if ((currentOffset - node.textContent.length) <= 0) {
+        return { node, currentOffset };
+      } else {
+        currentOffset -= node.textContent.length;
+      }
     }
   }
   
