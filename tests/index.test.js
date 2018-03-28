@@ -1,4 +1,4 @@
-import { TextArea, Selection } from '../src/index';
+import Ceasta from '../src/ceasta';
 import $ from 'jquery';
 
 var textArea;
@@ -8,7 +8,7 @@ describe('TextArea', () => {
     document.body.innerHTML = window.__html__['tests/index'];
     window.jQuery = $;
     window.$ = $;
-    textArea = new TextArea($('#textarea'), 'Fake placeholder');
+    textArea = new Ceasta($('#textarea'), 'Fake placeholder');
   });
 
   describe('DOM', () => {
@@ -52,29 +52,32 @@ describe('TextArea', () => {
   });
 
   describe('OnInputText', () => {
+    var rangeStub; 
+    var event;
     beforeEach(() => {
-      document.body.innerHTML = window.__html__['tests/index'];
-      window.jQuery = $;
-      window.$ = $;
-      textArea = new TextArea($('#textarea'), 'Fake placeholder');
-    });
-
-    it('should insert letter', () => {
-      var e = jQuery.Event("keyup");
-      e.which = 109;
-      textArea.val('Lore');
-      textArea.$container.text('Lorem');
       var range = { startOffset: 0, startContainer: textArea.$container[0] };
-      var rangeObject = {
+      rangeStub = {
         getRangeAt: function () { return range; },
-        removeAllRanges: function() { return {} },
+        removeAllRanges: function () { return {} },
         addRange: function (newRange) { range = newRange; }
       };
-      var removeRangeObject = {
-        getRangeAt: function () {  }
-      };
-      spyOn(window, 'getSelection').and.returnValue(rangeObject);
-      textArea.$container.trigger(e);
+      event = jQuery.Event("keyup");
+      event.which = 109;
+    });
+    
+    it('should insert letter', () => {
+      textArea.val('L');
+      textArea.$container.text('Lm');
+      spyOn(window, 'getSelection').and.returnValue(rangeStub);
+      textArea.$container.trigger(event);
+      expect(textArea.$container.text()).toEqual('Lm');
+    });
+
+    it('should highlight', () => {
+      textArea.val('Lore');
+      textArea.$container.text('Lorem');
+      spyOn(window, 'getSelection').and.returnValue(rangeStub);
+      textArea.$container.trigger(event);
       expect(textArea.$container.text()).toEqual('Lorem');
       expect(textArea.$container.html()).toEqual('<b>Lorem</b>');
     });

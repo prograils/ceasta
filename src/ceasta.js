@@ -1,4 +1,4 @@
-export class Ceasta {
+class Ceasta {
   constructor($container, placeholder, highlight) {
     if (placeholder == null) { placeholder = 'Test'; }
     if (highlight == null) { highlight = 'Lorem'; }
@@ -90,7 +90,6 @@ class Selection {
         startOffset += result;
         break;
       } else if (node !== ele) {
-        console.log(ele.textContent);
         startOffset += ele.textContent.length;
       }
     }
@@ -121,7 +120,6 @@ class Selection {
     this.currentSelection = this.getSelection();
     this.startOffset = this.currentSelection.startOffset;
     this.currentOffset = this.sumCurrentOffset(this.$container, this.currentSelection.startContainer, this.startOffset);
-    console.log(this.currentOffset);
   }
 
   restoreSelection() {
@@ -132,8 +130,9 @@ class Selection {
     range.setStart(node, this.currentOffset);
     range.collapse(true);
     const sel = window.getSelection();
-    console.log(sel);
     sel.removeAllRanges();
     sel.addRange(range);
   }
 }
+
+export default Ceasta;

@@ -2,20 +2,11 @@ const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 module.exports = {
   mode: "development",
-  entry: {
-    "bundle.min": './src/ceasta.js'
-  },
+  entry: './src/ceasta.js',
   devtool: "source-map",
   output: {
     filename: 'bundle.min.js',
     path: path.resolve(__dirname, 'dist')
-  },
-  devServer: {
-    port: 3000,
-    contentBase: "./dist",
-    historyApiFallback: {
-      index: 'index.html'
-    }
   },
   module: {
     rules: [
@@ -37,8 +28,7 @@ module.exports = {
   },
   plugins: [
     new UglifyJsPlugin({
-      include: /\.min\.js$/,
-      sourceMap: true
+      include: /\.min\.js$/
     })
   ]
 };
