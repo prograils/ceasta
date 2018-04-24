@@ -13,15 +13,15 @@ describe('TextArea', () => {
 
   describe('DOM', () => {
     it('should be in DOM', () => {
-      expect(textArea.$container[0]).toBeInDOM();
+      expect(textArea.$textArea[0]).toBeInDOM();
     });
     it('should be contenteditable', () => {
-      expect(textArea.$container).toHaveAttr('contenteditable');
+      expect(textArea.$textArea).toHaveAttr('contenteditable');
     });
     it('should trigger click', () => {
-      spyOn(textArea.$container, 'click');
-      textArea.$container.click();
-      expect(textArea.$container.click).toHaveBeenCalled();
+      spyOn(textArea.$textArea, 'click');
+      textArea.$textArea.click();
+      expect(textArea.$textArea.click).toHaveBeenCalled();
     });
   });
 
@@ -35,51 +35,57 @@ describe('TextArea', () => {
     it('should assign value', () => {
       expect(textArea.value).toEqual('');
     });
-    it('should assign $container', () => {
-      expect(textArea.$container).toEqual($('#textarea'));
+    it('should assign $textArea', () => {
+      expect(textArea.$textArea).toEqual($('#textarea'));
     });
   });
 
   describe('Placeholder', () => {
     it('should clean placeholder', () => {
-      textArea.$container.focusin();
-      expect(textArea.$container.text()).toEqual(''); 
+      textArea.$textArea.focusin();
+      expect(textArea.$textArea.text()).toEqual('');
     });
     it('should set placeholder', () => {
-      textArea.$container.focusout();
-      expect(textArea.$container.text()).toEqual('Fake placeholder');
+      textArea.$textArea.focusout();
+      expect(textArea.$textArea.text()).toEqual('Fake placeholder');
     });
   });
 
   describe('OnInputText', () => {
-    var rangeStub; 
+    var rangeStub;
     var event;
     beforeEach(() => {
-      var range = { startOffset: 0, startContainer: textArea.$container[0] };
+      var range = { startOffset: 0, startContainer: textArea.$textArea[0] };
       rangeStub = {
-        getRangeAt: function () { return range; },
-        removeAllRanges: function () { return {} },
-        addRange: function (newRange) { range = newRange; }
+        getRangeAt: function() {
+          return range;
+        },
+        removeAllRanges: function() {
+          return {};
+        },
+        addRange: function(newRange) {
+          range = newRange;
+        }
       };
-      event = jQuery.Event("keyup");
+      event = jQuery.Event('keyup');
       event.which = 109;
     });
-    
+
     it('should insert letter', () => {
       textArea.val('L');
-      textArea.$container.text('Lm');
+      textArea.$textArea.text('Lm');
       spyOn(window, 'getSelection').and.returnValue(rangeStub);
-      textArea.$container.trigger(event);
-      expect(textArea.$container.text()).toEqual('Lm');
+      textArea.$textArea.trigger(event);
+      expect(textArea.$textArea.text()).toEqual('Lm');
     });
 
     it('should highlight', () => {
       textArea.val('Lore');
-      textArea.$container.text('Lorem');
+      textArea.$textArea.text('Lorem');
       spyOn(window, 'getSelection').and.returnValue(rangeStub);
-      textArea.$container.trigger(event);
-      expect(textArea.$container.text()).toEqual('Lorem');
-      expect(textArea.$container.html()).toEqual('<b>Lorem</b>');
+      textArea.$textArea.trigger(event);
+      expect(textArea.$textArea.text()).toEqual('Lorem');
+      expect(textArea.$textArea.html()).toEqual('<b>Lorem</b>');
     });
   });
 });
