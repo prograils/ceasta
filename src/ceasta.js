@@ -103,7 +103,7 @@ class Selection {
         const result = this.sumCurrentOffset(ele, node, 0);
         startOffset += result;
         break;
-      } else if (node !== ele) {
+      } else {
         startOffset += ele.textContent.length;
       }
     }
